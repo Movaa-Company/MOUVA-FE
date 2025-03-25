@@ -3,12 +3,12 @@ import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, ArrowLeft, Check } from "lucide-react";
 import SignUpLayout from "./signupLayout";
+import Link from "next/link";
 
 type FormStage = "contact" | "otp" | "password";
 
-
 const SignUpForm = () => {
-    const [stage, setStage] = useState<FormStage>("contact");
+  const [stage, setStage] = useState<FormStage>("contact");
   const [contactValue, setContactValue] = useState("");
   const [otp, setOtp] = useState(["", "", "", ""]);
   const [password, setPassword] = useState("");
@@ -179,8 +179,8 @@ const SignUpForm = () => {
         <h1 className="text-5xl font-semibold font-baloo text-black mb-3">
           Sign up
         </h1>
-        <p className="text-gray-600">
-          signup in three seconds and book your bus
+        <p className="text-gray-600 text-xs">
+          signup in 3 seconds & book your bus
         </p>
       </div>
 
@@ -194,21 +194,21 @@ const SignUpForm = () => {
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label
-                htmlFor="contact"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Email or Phone Number
-              </label>
               <input
                 id="contact"
                 type="text"
                 value={contactValue}
                 onChange={(e) => setContactValue(e.target.value)}
                 className="input-animated w-full px-4 py-3 bg-gray-50 rounded-lg"
-                placeholder="Enter your email or phone number"
+                placeholder="Enter your phone number"
                 disabled={isSubmitting}
               />
+              <p className="text-[11px] italic text-right">
+                already have an account?{" "}
+                <Link href="/sign-in" className="text-[#006400]">
+                  sign in
+                </Link>
+              </p>
               {errors.contact && (
                 <p className="text-red-500 text-sm">{errors.contact}</p>
               )}
@@ -240,7 +240,7 @@ const SignUpForm = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div className="text-center">
-                <h2 className="text-xl font-medium">Verification Code</h2>
+                <h2 className="text-xl font-medium">Enter Verification Code</h2>
                 <p className="text-gray-500 mt-1">
                   We've sent a code to {contactValue}
                 </p>
@@ -313,9 +313,7 @@ const SignUpForm = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="text-center mb-4">
               <h2 className="text-xl font-medium">Create Password</h2>
-              <p className="text-gray-500 mt-1">
-                Last step to complete your registration
-              </p>
+
             </div>
 
             <div className="space-y-4">
@@ -391,7 +389,6 @@ const SignUpForm = () => {
       </div>
     </div>
   );
- 
 };
 
 export default function SignUpPage() {

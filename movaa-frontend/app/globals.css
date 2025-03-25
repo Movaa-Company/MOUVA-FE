@@ -139,7 +139,7 @@
 
   /* OTP Input styling */
   .otp-input {
-    @apply w-12 h-12 text-center text-xl border-b-2 border-gray-300 focus:border-movaa-primary focus:outline-none transition-all duration-200;
+    @apply w-12 h-12 text-center text-xl rounded-[8px] border-2 border-gray-300 focus:border-movaa-primary focus:outline-none transition-all duration-200;
   }
 
   /* Button hover effects */
