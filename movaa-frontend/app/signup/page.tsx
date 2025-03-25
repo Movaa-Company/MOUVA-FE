@@ -318,12 +318,7 @@ const SignUpForm = () => {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Password
-                </label>
+                
                 <input
                   id="password"
                   type="password"
@@ -331,6 +326,7 @@ const SignUpForm = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="input-animated w-full px-4 py-3 bg-gray-50 rounded-lg"
                   placeholder="Create a password"
+                  aria-label="create password"
                   disabled={isSubmitting}
                 />
                 {errors.password && (
@@ -339,12 +335,7 @@ const SignUpForm = () => {
               </div>
 
               <div className="space-y-2">
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Confirm Password
-                </label>
+                
                 <input
                   id="confirmPassword"
                   type="password"
@@ -352,6 +343,7 @@ const SignUpForm = () => {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="input-animated w-full px-4 py-3 bg-gray-50 rounded-lg"
                   placeholder="Confirm your password"
+                  aria-label="confirm password"
                   disabled={isSubmitting}
                 />
                 {errors.confirmPassword && (
