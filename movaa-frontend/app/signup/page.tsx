@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, ArrowLeft, Check } from "lucide-react";
 import SignUpLayout from "./signupLayout";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type FormStage = "contact" | "otp" | "password";
 
@@ -17,6 +18,7 @@ const SignUpForm = () => {
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  const router = useRouter();
 
   // OTP input refs
   const otpRefs = [
@@ -117,10 +119,27 @@ const SignUpForm = () => {
       case "password":
         isValid = validatePassword();
         if (isValid) {
-          // Simulate final registration
-          setTimeout(() => {
-            toast.success("Registration completed successfully!");
-          }, 1000);
+          try {
+            // Store initial user data
+            const userData = {
+              contactValue,
+              password,
+              isOnboarded: false,
+            };
+
+            localStorage.setItem("movaaUserData", JSON.stringify(userData));
+
+            toast.success(
+              "Registration successful! Let's personalize your profile."
+            );
+
+            // Redirect to PersonalizeProfileForm with the necessary data
+            router.push(
+              `/signup/onboarding?contact=${encodeURIComponent(contactValue)}`
+            );
+          } catch (error) {
+            toast.error("Error saving user data. Please try again.");
+          }
         }
         break;
     }
@@ -313,12 +332,10 @@ const SignUpForm = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="text-center mb-4">
               <h2 className="text-xl font-medium">Create Password</h2>
-
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                
                 <input
                   id="password"
                   type="password"
@@ -335,7 +352,6 @@ const SignUpForm = () => {
               </div>
 
               <div className="space-y-2">
-                
                 <input
                   id="confirmPassword"
                   type="password"
@@ -350,6 +366,7 @@ const SignUpForm = () => {
                   <p className="text-red-500 text-sm">
                     {errors.confirmPassword}
                   </p>
+                  
                 )}
               </div>
             </div>
@@ -372,7 +389,7 @@ const SignUpForm = () => {
                 {isSubmitting ? (
                   <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  "Complete Registration"
+                  "Create Password"
                 )}
               </button>
             </div>
