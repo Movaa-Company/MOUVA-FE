@@ -28,7 +28,7 @@ const BookingPage = () => {
       <div className="flex-1 flex flex-col md:flex-row">
         <div className="w-full md:w-1/2 py-4 px-1 md:py-8">
           <div className="mb-5 text-center">
-            <h1 className="text-[20px] md:text-5xl font-baloo font-semibold text-black mb-2">
+            <h1 className="text-[20px] md:text-3xl font-baloo font-semibold text-black mb-2">
               Book bus ticket to any city
             </h1>
           </div>

@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calender";
@@ -23,6 +22,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
+  DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
@@ -38,13 +39,25 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
+import Link from "next/link"; // Next.js Link component
 import { toast } from "sonner";
+import React from "react";
+
+const visuallyHidden = "sr-only"; // or "absolute w-[1px] h-[1px] p-0 -m-[1px] overflow-hidden clip-[rect(0,0,0,0)] whitespace-nowrap border-0"
 
 const formSchema = z.object({
-  destination: z.string().min(2, { message: "Destination city is required" }),
-  from: z.string().min(2, { message: "Departure city is required" }),
-  date: z.date({ required_error: "Travel date is required" }),
-  time: z.string({ required_error: "Pick-up time is required" }),
+  destination: z.string().min(2, {
+    message: "Destination city is required",
+  }),
+  from: z.string().min(2, {
+    message: "Departure city is required",
+  }),
+  date: z.date({
+    required_error: "Travel date is required",
+  }),
+  time: z.string({
+    required_error: "Pick-up time is required",
+  }),
   forWho: z.string({
     required_error: "Please specify who this booking is for",
   }),
@@ -58,13 +71,21 @@ interface BookingFormProps {
   onDestinationChange: (destination: string) => void;
 }
 
-const visuallyHidden = "sr-only";
-
 const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
   const router = useRouter();
-  const [isLoggedIn] = useState(false); // Replace with actual authentication logic
+
+  const [isMounted, setIsMounted] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [openAuthDialog, setOpenAuthDialog] = useState(false);
   const [showOthersCount, setShowOthersCount] = useState(false);
+
+  const otpRefs = [
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+    React.useRef<HTMLInputElement>(null),
+  ];
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(formSchema),
@@ -75,9 +96,23 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
       time: "",
       forWho: "for-me",
       numberOfPeople: 1,
-      children: undefined,
     },
   });
+
+  // Check if user is logged in
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const authToken = localStorage.getItem("movaaAuthToken");
+      setIsLoggedIn(!!authToken);
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) return null;
 
   const handleDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -92,9 +127,14 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
 
   const onSubmit = (data: BookingFormValues) => {
     console.log("Form data:", data);
+
+    // Save booking data to localStorage for retrieval on trip details page
+    localStorage.setItem("movaaBookingData", JSON.stringify(data));
+
     if (isLoggedIn) {
-      toast.success("Proceeding to payment...");
-      router.push("/payment");
+      // Navigate to trip details screen using Next.js router
+      toast.success("Proceeding to trip details...");
+      router.push("/trip-details");
     } else {
       setOpenAuthDialog(true);
     }
@@ -310,13 +350,11 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Array.from({ length: 10 }, (_, i) => i ).map(
-                        (num) => (
-                          <SelectItem key={num} value={num.toString()}>
-                            {num} {num<= 1? "child": "children"}
-                          </SelectItem>
-                        )
-                      )}
+                      {Array.from({ length: 10 }, (_, i) => i).map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num} {num <= 1 ? "child" : "children"}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
