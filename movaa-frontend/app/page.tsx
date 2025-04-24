@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import BookingForm from "@/components/bookingForm";
-import MapView from "@/components/Mapview";
+import MapView from "@/components/mapView";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -15,7 +15,7 @@ const BookingPage = () => {
   const [destination, setDestination] = useState("");
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-hidden">
       {/* Navigation Bar */}
       <nav className="flex items-center justify-between p-4 border-b border-gray-200">
         <h1 className="text-2xl font-baloo font-semibold text-movaa-primary">
@@ -26,27 +26,24 @@ const BookingPage = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col md:flex-row">
-        <div className="w-full md:w-1/2 p-4 md:p-8">
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl md:text-5xl font-baloo font-semibold text-black mb-2">
-              Book your bus ticket to any city
+        <div className="w-full md:w-1/2 py-4 px-1 md:py-8">
+          <div className="mb-5 text-center">
+            <h1 className="text-[20px] md:text-5xl font-baloo font-semibold text-black mb-2">
+              Book bus ticket to any city
             </h1>
-            <p className="text-gray-600">
-              Signup in three seconds and book your bus
-            </p>
           </div>
 
-          <Tabs defaultValue="book-ticket" className="w-full">
-            <TabsList className="w-full mb-6">
+          <Tabs defaultValue="book-ticket" className="w-full ">
+            <TabsList className="w-full mb-6 py-[30px] px-[30px] flex gap-2 bg-white/60 border-t rounded-[12px]">
               <TabsTrigger
                 value="book-ticket"
-                className="flex-1 data-[state=active]:bg-movaa-primary data-[state=active]:text-white"
+                className="flex-1 rounded-[22px] border data-[state=active]:bg-movaa-primary data-[state=active]:text-white"
               >
                 Book Ticket
               </TabsTrigger>
               <TabsTrigger
                 value="check-ticket"
-                className="flex-1 data-[state=active]:bg-movaa-primary data-[state=active]:text-white"
+                className="flex-1 rounded-[22px] border data-[state=active]:bg-movaa-primary data-[state=active]:text-white"
                 disabled
                 title="No live tickets, please book a ticket first"
               >
@@ -54,7 +51,7 @@ const BookingPage = () => {
               </TabsTrigger>
               <TabsTrigger
                 value="charter-bus"
-                className="flex-1 data-[state=active]:bg-movaa-primary data-[state=active]:text-white"
+                className="flex-1 rounded-[22px] border data-[state=active]:bg-movaa-primary data-[state=active]:text-white"
               >
                 Charter Bus
               </TabsTrigger>
@@ -77,7 +74,7 @@ const BookingPage = () => {
         </div>
 
         {!isMobile && (
-          <div className="hidden md:block w-1/2 bg-gray-100">
+          <div className="hidden md:block w-1/2 max-h-screen bg-gray-100">
             <MapView destination={destination} />
           </div>
         )}
@@ -113,7 +110,7 @@ const DesktopNav = () => (
         <Link href="/sign-in">Sign In</Link>
       </Button>
       <Button asChild>
-        <Link href="/">Sign Up</Link>
+        <Link href="/signup">Sign Up</Link>
       </Button>
     </div>
   </div>
