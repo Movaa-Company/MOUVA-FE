@@ -59,7 +59,7 @@ const SignInForm = () => {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success("Welcome back to Movaa!");
-      router.push("/dashboard"); // or wherever you want to redirect
+      router.push("/dashboard");
     } catch (error) {
       console.error("Sign in error:", error);
       toast.error("Invalid credentials. Please try again.");
@@ -136,7 +136,6 @@ const SignInForm = () => {
             </>
           )}
         </button>
-
         <div className="text-center mt-4">
           <p className="text-gray-600">
             Don't have an account?{" "}
