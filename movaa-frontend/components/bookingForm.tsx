@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
@@ -39,17 +39,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useLocation } from "./LocationContext";
+import { fetchNigerianCities, debounce } from "@/lib/citiesApi";
+import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   destination: z.string().min(2, { message: "Destination city is required" }),
   from: z.string().min(2, { message: "Departure city is required" }),
   date: z.date({ required_error: "Travel date is required" }),
   time: z.string({ required_error: "Pick-up time is required" }),
-  forWho: z.string({
-    required_error: "Please specify who this booking is for",
-  }),
-  numberOfPeople: z.number().optional(),
-  children: z.number().optional(),
+  tickets: z.number().min(1, { message: "No. of ticket is required" }),
+  children: z.number().max(20).optional(),
 });
 
 type BookingFormValues = z.infer<typeof formSchema>;
@@ -62,36 +62,62 @@ const visuallyHidden = "sr-only";
 
 const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
   const router = useRouter();
+  const { permission, currentCity, requestLocation, loading: locationLoading, error: locationError } = useLocation();
+  const { toast } = useToast();
   const [isLoggedIn] = useState(false); // Replace with actual authentication logic
   const [openAuthDialog, setOpenAuthDialog] = useState(false);
-  const [showOthersCount, setShowOthersCount] = useState(false);
+  const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
+  const [fromSuggestions, setFromSuggestions] = useState<string[]>([]);
+  const [childrenError, setChildrenError] = useState<string | null>(null);
 
   const form = useForm<BookingFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       destination: "",
-      from: "",
+      from: currentCity || "",
       date: undefined,
       time: "",
-      forWho: "for-me",
-      numberOfPeople: 1,
-      children: undefined,
+      tickets: 1,
+      children: 0,
     },
   });
 
-  const handleDestinationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    form.setValue("destination", value);
-    onDestinationChange(value);
-  };
+  // Update 'from' field if currentCity changes
+  useEffect(() => {
+    if (currentCity && !form.getValues("from")) {
+      form.setValue("from", currentCity);
+    }
+  }, [currentCity]);
 
-  const handleForWhoChange = (value: string) => {
-    form.setValue("forWho", value);
-    setShowOthersCount(value !== "for-me");
+  // Nudge for location permission if denied
+  useEffect(() => {
+    if (permission === "denied" && locationError) {
+      toast.error("Please enable location services for best experience.");
+    }
+  }, [permission, locationError]);
+
+  // Autocomplete handlers
+  const handleCityInput = debounce(async (value: string) => {
+    setCitySuggestions(await fetchNigerianCities(value));
+  }, 300);
+  const handleFromInput = debounce(async (value: string) => {
+    setFromSuggestions(await fetchNigerianCities(value));
+  }, 300);
+
+  // Children validation
+  const validateChildren = (children: number, tickets: number) => {
+    if (children > tickets) {
+      setChildrenError("Only one child per ticket booked is allowed. Please select more ticket(s).");
+      return false;
+    }
+    setChildrenError(null);
+    return true;
   };
 
   const onSubmit = (data: BookingFormValues) => {
-    console.log("Form data:", data);
+    if (!validateChildren(data.children ?? 0, data.tickets)) {
+      return;
+    }
     if (isLoggedIn) {
       toast.success("Proceeding to payment...");
       router.push("/payment");
@@ -112,15 +138,35 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
               <FormItem>
                 <FormLabel className={visuallyHidden}>Travelling to</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Travelling to"
-                    className="rounded-[12px] font-semibold text-[18px] text-[#7A7A7A]"
-                    {...field}
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleDestinationChange(e);
-                    }}
-                  />
+                  <div className="relative">
+                    <Input
+                      placeholder="Travelling to"
+                      className="rounded-[12px] font-semibold text-[18px] text-[#7A7A7A]"
+                      {...field}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        handleCityInput(e.target.value);
+                        onDestinationChange(e.target.value);
+                      }}
+                      autoComplete="off"
+                    />
+                    {citySuggestions.length > 0 && (
+                      <ul className="absolute z-10 bg-white border rounded w-full mt-1 max-h-40 overflow-y-auto">
+                        {citySuggestions.map((city) => (
+                          <li
+                            key={city}
+                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => {
+                              form.setValue("destination", city);
+                              setCitySuggestions([]);
+                            }}
+                          >
+                            {city}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -135,17 +181,42 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
               <FormItem>
                 <FormLabel className={visuallyHidden}>From</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="From"
-                    className="rounded-[12px] font-semibold text-[16px] text-[#7A7A7A]"
-                    {...field}
-                  />
+                  <div className="relative">
+                    <Input
+                      placeholder="From"
+                      className="rounded-[12px] font-semibold text-[16px] text-[#7A7A7A]"
+                      {...field}
+                      value={field.value}
+                      onChange={(e) => {
+                        field.onChange(e);
+                        handleFromInput(e.target.value);
+                      }}
+                      autoComplete="off"
+                    />
+                    {fromSuggestions.length > 0 && (
+                      <ul className="absolute z-10 bg-white border rounded w-full mt-1 max-h-40 overflow-y-auto">
+                        {fromSuggestions.map((city) => (
+                          <li
+                            key={city}
+                            className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => {
+                              form.setValue("from", city);
+                              setFromSuggestions([]);
+                            }}
+                          >
+                            {city}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
 
+          {/* Date and Time */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Date Field */}
             <FormField
@@ -215,119 +286,90 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
             />
           </div>
 
-          {/* For Who and Children Fields */}
+          {/* No. of Ticket and Children Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Left Column - For Who */}
-            <div>
-              <div className={showOthersCount ? "flex gap-4" : ""}>
-                <div className={showOthersCount ? "w-1/2" : "w-full"}>
-                  <FormField
-                    control={form.control}
-                    name="forWho"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className={visuallyHidden}>
-                          For Who?
-                        </FormLabel>
-                        <Select
-                          onValueChange={(value) => handleForWhoChange(value)}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="rounded-[12px] text-[#7A7A7A] font-semibold text-[16px]">
-                              <SelectValue placeholder="For who?" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent className="font-semibold">
-                            <SelectItem value="for-me">For me</SelectItem>
-                            <SelectItem value="for-me-and-others">
-                              For me and others
-                            </SelectItem>
-                            <SelectItem value="for-others">
-                              For others
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                {showOthersCount && (
-                  <div className="w-1/2">
-                    <FormField
-                      control={form.control}
-                      name="numberOfPeople"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className={visuallyHidden}>
-                            Number of People
-                          </FormLabel>
-                          <Select
-                            onValueChange={(value) =>
-                              field.onChange(parseInt(value))
-                            }
-                            defaultValue={field.value?.toString() || "1"}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="rounded-[12px] text-[#7A7A7A] font-semibold text-[16px]">
-                                <SelectValue placeholder="Number of people" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {Array.from({ length: 10 }, (_, i) => i + 1).map(
-                                (num) => (
-                                  <SelectItem key={num} value={num.toString()}>
-                                    {num} {num === 1 ? "person" : "people"}
-                                  </SelectItem>
-                                )
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Right Column - Children */}
+            {/* No. of Ticket */}
             <FormField
               control={form.control}
-              name="children"
+              name="tickets"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className={visuallyHidden}>Children?</FormLabel>
+                  <FormLabel className={visuallyHidden}>No. of Ticket</FormLabel>
                   <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    defaultValue={field.value?.toString()}
+                    onValueChange={(value) => {
+                      field.onChange(parseInt(value));
+                      // Reset children if new ticket count is less than children
+                      const children = form.getValues("children") ?? 0;
+                      if (children > parseInt(value)) {
+                        form.setValue("children", parseInt(value));
+                        setChildrenError(null);
+                      }
+                    }}
+                    defaultValue={field.value?.toString() || "1"}
                   >
                     <FormControl>
                       <SelectTrigger className="rounded-[12px] text-[#7A7A7A] font-semibold text-[16px]">
-                        <SelectValue placeholder="Children?" />
+                        <SelectValue placeholder="No. of Ticket" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Array.from({ length: 10 }, (_, i) => i ).map(
-                        (num) => (
-                          <SelectItem key={num} value={num.toString()}>
-                            {num} {num<= 1? "child": "children"}
-                          </SelectItem>
-                        )
-                      )}
+                      {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num} {num === 1 ? "ticket" : "tickets"}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Children */}
+            <FormField
+              control={form.control}
+              name="children"
+              render={({ field }) => {
+                const ticketCount = form.watch("tickets") || 1;
+                const childrenOptions = Array.from({ length: ticketCount + 1 }, (_, i) => i);
+                return (
+                  <FormItem>
+                    <FormLabel className={visuallyHidden}>Children?</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        const val = parseInt(value);
+                        field.onChange(val);
+                        validateChildren(val, ticketCount);
+                      }}
+                      defaultValue={field.value?.toString() || "0"}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="rounded-[12px] text-[#7A7A7A] font-semibold text-[16px]">
+                          <SelectValue placeholder="Children?" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {childrenOptions.map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num} {num <= 1 ? "child" : "children"}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {childrenError && (
+                      <div className="text-red-500 text-sm mt-1">{childrenError}</div>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
           </div>
 
           <Button
             type="submit"
             className="w-2/3 text-center rounded-[12px] flex items-center justify-center mx-auto bg-movaa-primary hover:bg-movaa-dark text-white font-baloo text-[17px] md:text-[20px]"
+            disabled={!!childrenError}
           >
             Proceed
           </Button>
