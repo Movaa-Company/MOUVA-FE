@@ -4,6 +4,8 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowRight, ArrowLeft, Check } from "lucide-react";
 import SignUpLayout from "./signupLayout";
 import Link from "next/link";
+import { saveUser } from "@/lib/localStorageUtils";
+import { useRouter } from "next/navigation";
 
 type FormStage = "contact" | "otp" | "password";
 
@@ -17,6 +19,7 @@ const SignUpForm = () => {
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
+  const router = useRouter();
 
   // OTP input refs
   const otpRefs = [
@@ -117,10 +120,15 @@ const SignUpForm = () => {
       case "password":
         isValid = validatePassword();
         if (isValid) {
-          // Simulate final registration
-          setTimeout(() => {
-            toast.success("Registration completed successfully!");
-          }, 1000);
+          // Save user data to localStorage
+          const newUser = {
+            phone: contactValue, // Assuming phone number is the contact value
+            password: password,
+          };
+          saveUser(newUser);
+          toast.success("Registration completed successfully!");
+          // Navigate to personalize profile page
+          router.push("/personalize-profile");
         }
         break;
     }

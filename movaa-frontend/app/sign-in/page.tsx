@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import SignInLayout from "./signinLayout";
 import Link from "next/link";
+import { getUser, setLoggedInUser } from "@/lib/localStorageUtils";
 
 const SignInForm = () => {
   const router = useRouter();
@@ -53,16 +54,31 @@ const SignInForm = () => {
       setIsSubmitting(true);
 
       if (!validateContact() || !validatePassword()) {
+        setIsSubmitting(false);
         return;
       }
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success("Welcome back to Movaa!");
-      router.push("/dashboard");
+      // Retrieve user data from localStorage
+      const userData = getUser();
+
+      // Find user by contact value (assuming contactValue is unique identifier like phone)
+      // Note: In a real app, you would hash passwords and verify securely on a backend.
+      const user = userData && userData.phone === contactValue ? userData : null;
+
+      if (user && user.password === password) {
+        // Set logged-in user in localStorage
+        setLoggedInUser(user.phone); // Use phone as the identifier
+
+        toast.success("Welcome back to Movaa!");
+        router.push("/booking-details"); // Navigate to booking details page
+      } else {
+        toast.error("Invalid email/phone or password.");
+        setErrors({ general: "Invalid email/phone or password." });
+      }
+
     } catch (error) {
       console.error("Sign in error:", error);
-      toast.error("Invalid credentials. Please try again.");
+      toast.error("An error occurred during sign in.");
     } finally {
       setIsSubmitting(false);
     }

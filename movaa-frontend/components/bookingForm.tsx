@@ -42,6 +42,7 @@ import { toast } from "sonner";
 import { useLocation } from "./LocationContext";
 import { fetchNigerianCities, debounce } from "@/lib/citiesApi";
 import { useToast } from "@/hooks/use-toast";
+import { getLoggedInUser, saveBookingData } from "@/lib/localStorageUtils";
 
 const formSchema = z.object({
   destination: z.string().min(2, { message: "Destination city is required" }),
@@ -118,9 +119,16 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
     if (!validateChildren(data.children ?? 0, data.tickets)) {
       return;
     }
-    if (isLoggedIn) {
-      toast.success("Proceeding to payment...");
-      router.push("/payment");
+
+    // Save booking data to localStorage
+    saveBookingData(data);
+
+    // Check if user is logged in
+    const loggedInUser = getLoggedInUser();
+
+    if (loggedInUser) {
+      toast.success("Proceeding to booking details...");
+      router.push("/booking-details");
     } else {
       setOpenAuthDialog(true);
     }
@@ -231,6 +239,9 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
                         <Button
                           variant="outline"
                           className="w-full pl-3 text-left flex justify-between text-[#7A7A7A] rounded-[12px] font-semibold text-[16px]"
+                          {...field}
+                          value={field.value ? format(field.value, "PPP") : ""}
+                          onClick={() => field.onBlur()}
                         >
                           {field.value ? (
                             format(field.value, "PPP")
@@ -251,6 +262,8 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
                       />
                     </PopoverContent>
                   </Popover>
+             
+
                   <FormMessage />
                 </FormItem>
               )}
@@ -267,11 +280,9 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
-                    <FormControl>
                       <SelectTrigger className="rounded-[12px] text-[#7A7A7A] font-semibold text-[16px]">
                         <SelectValue placeholder="Select time" />
                       </SelectTrigger>
-                    </FormControl>
                     <SelectContent>
                       <SelectItem value="6:00am">6:00am</SelectItem>
                       <SelectItem value="9:00am">9:00am</SelectItem>
@@ -307,11 +318,9 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
                     }}
                     defaultValue={field.value?.toString() || "1"}
                   >
-                    <FormControl>
                       <SelectTrigger className="rounded-[12px] text-[#7A7A7A] font-semibold text-[16px]">
                         <SelectValue placeholder="No. of Ticket" />
                       </SelectTrigger>
-                    </FormControl>
                     <SelectContent>
                       {Array.from({ length: 20 }, (_, i) => i + 1).map((num) => (
                         <SelectItem key={num} value={num.toString()}>
@@ -343,11 +352,9 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
                       }}
                       defaultValue={field.value?.toString() || "0"}
                     >
-                      <FormControl>
                         <SelectTrigger className="rounded-[12px] text-[#7A7A7A] font-semibold text-[16px]">
                           <SelectValue placeholder="Children?" />
                         </SelectTrigger>
-                      </FormControl>
                       <SelectContent>
                         {childrenOptions.map((num) => (
                           <SelectItem key={num} value={num.toString()}>
