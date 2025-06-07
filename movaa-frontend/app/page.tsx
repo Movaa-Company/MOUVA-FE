@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import BookingForm from "@/components/bookingForm";
 import MapView from "@/components/mapView";
@@ -13,6 +13,30 @@ import { Menu } from "lucide-react";
 const BookingPage = () => {
   const isMobile = useIsMobile();
   const [destination, setDestination] = useState("");
+  const [hasLiveTicket, setHasLiveTicket] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const bookingRaw = localStorage.getItem("bookingData");
+        if (bookingRaw) {
+          const booking = JSON.parse(bookingRaw);
+          const paymentStatus = booking.paymentStatus;
+          const date = booking.date ? new Date(booking.date) : null;
+          const now = new Date();
+          if (
+            paymentStatus === "Paid" &&
+            date &&
+            date > now
+          ) {
+            setHasLiveTicket(true);
+            return;
+          }
+        }
+      } catch {}
+    }
+    setHasLiveTicket(false);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col overflow-hidden">
@@ -41,14 +65,24 @@ const BookingPage = () => {
               >
                 Book Ticket
               </TabsTrigger>
-              <TabsTrigger
-                value="check-ticket"
-                className="flex-1 rounded-[22px] border data-[state=active]:bg-movaa-primary data-[state=active]:text-white"
-                disabled
-                title="No live tickets, please book a ticket first"
-              >
-                Check Ticket
-              </TabsTrigger>
+              {hasLiveTicket ? (
+                <TabsTrigger
+                  value="check-ticket"
+                  className="flex-1 rounded-[22px] border data-[state=active]:bg-movaa-primary data-[state=active]:text-white"
+                  asChild
+                >
+                  <Link href="/ticket-details">Check Ticket</Link>
+                </TabsTrigger>
+              ) : (
+                <TabsTrigger
+                  value="check-ticket"
+                  className="flex-1 rounded-[22px] border data-[state=active]:bg-movaa-primary data-[state=active]:text-white"
+                  disabled
+                  title="No live tickets, please book a ticket first"
+                >
+                  Check Ticket
+                </TabsTrigger>
+              )}
               <TabsTrigger
                 value="charter-bus"
                 className="flex-1 rounded-[22px] border data-[state=active]:bg-movaa-primary data-[state=active]:text-white"
@@ -75,7 +109,7 @@ const BookingPage = () => {
 
         {!isMobile && (
           <div className="hidden md:block w-1/2 max-h-screen bg-gray-100">
-            <MapView destination={destination} />
+            <MapView />
           </div>
         )}
       </div>

@@ -54,13 +54,13 @@ const PaymentPage = () => {
 
   // Card validation
   useEffect(() => {
-    // Luhn check for card number
     const luhn = (num: string) => {
       let arr = (num + "").split("").reverse().map(x => parseInt(x));
       let sum = arr.reduce((acc, val, i) => acc + (i % 2 ? ((val *= 2) > 9 ? val - 9 : val) : val), 0);
       return sum % 10 === 0;
     };
-    const validNumber = card.number.replace(/\s/g, "").length === 16 && luhn(card.number.replace(/\s/g, ""));
+    const digits = card.number.replace(/\s/g, "");
+    const validNumber = digits.length === 16 && luhn(digits);
     const validExpiry = /^\d{2}\/\d{2}$/.test(card.expiry);
     const validCVV = /^\d{3}$/.test(card.cvv);
     setCardValid(validNumber && validExpiry && validCVV);
@@ -68,13 +68,31 @@ const PaymentPage = () => {
 
   // Handlers
   const handleTransfer = () => {
+    // Update bookingData with paymentStatus and set toast flag
+    try {
+      const booking = JSON.parse(localStorage.getItem("bookingData") || "null");
+      if (booking) {
+        booking.paymentStatus = "Paid";
+        localStorage.setItem("bookingData", JSON.stringify(booking));
+      }
+      localStorage.setItem("showTicketToast", "true");
+    } catch {}
     toast.success("Payment successful", { duration: 3000 });
-    setTimeout(() => router.push("/bus-ticket"), 3000);
+    setTimeout(() => router.push("/ticket-details"), 3000);
   };
   const handleCard = () => {
+    // Update bookingData with paymentStatus and set toast flag
+    try {
+      const booking = JSON.parse(localStorage.getItem("bookingData") || "null");
+      if (booking) {
+        booking.paymentStatus = "Paid";
+        localStorage.setItem("bookingData", JSON.stringify(booking));
+      }
+      localStorage.setItem("showTicketToast", "true");
+    } catch {}
     // Simulate always successful for now
     toast.success("Payment successful", { duration: 3000 });
-    setTimeout(() => router.push("/bus-ticket"), 3000);
+    setTimeout(() => router.push("/ticket-details"), 3000);
     // To test error modal, setShowError(true);
   };
   const handlePalPay = () => {
@@ -91,16 +109,16 @@ const PaymentPage = () => {
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-[#F6FBF7]">
+    <div className="min-h-screen w-full overflow-x-hidden flex flex-col md:flex-row bg-[#F6FBF7]">
       {/* Left: Payment Methods */}
-      <div className="w-full md:w-1/4 p-6 flex flex-row md:flex-col gap-4 md:gap-8 bg-[#F6FBF7]">
+      <div className="w-full md:w-1/4 p-4 md:p-6 flex flex-row md:flex-col gap-2 md:gap-8 bg-[#F6FBF7]">
         <Button variant={tab === "transfer" ? "default" : "outline"} className="justify-start" onClick={() => setTab("transfer")}> <span className="mr-2">🛩️</span> Transfer </Button>
         <Button variant={tab === "card" ? "default" : "outline"} className="justify-start" onClick={() => setTab("card")}> <span className="mr-2">💳</span> Card </Button>
         <Button variant={tab === "palpay" ? "default" : "outline"} className="justify-start" onClick={handlePalPay} disabled> <span className="mr-2">🅿️</span> PalPay </Button>
       </div>
       {/* Right: Payment Content */}
-      <div className="flex-1 p-6 flex flex-col items-center">
-        <div className="w-full max-w-lg">
+      <div className="w-full md:flex-1 p-4 md:p-6 flex flex-col items-center">
+        <div className="w-full max-w-lg box-border">
           <div className="flex justify-between items-center mb-4">
             <span className="text-2xl font-bold text-[#006400]">Movaa</span>
             <span className="text-sm text-gray-700">{userEmail}</span>
@@ -140,7 +158,12 @@ const PaymentPage = () => {
                   placeholder="Card Number"
                   value={card.number}
                   maxLength={19}
-                  onChange={e => setCard({ ...card, number: e.target.value.replace(/[^\d ]/g, "").replace(/(\d{4})/g, "$1 ").trim() })}
+                  onChange={e => {
+                    // Remove all non-digits, then insert a space every 4 digits
+                    let value = e.target.value.replace(/\D/g, "").slice(0, 16);
+                    value = value.replace(/(.{4})/g, "$1 ").trim();
+                    setCard({ ...card, number: value });
+                  }}
                   className="text-lg"
                 />
                 <div className="flex gap-4">
@@ -148,7 +171,11 @@ const PaymentPage = () => {
                     placeholder="Expiry Date"
                     value={card.expiry}
                     maxLength={5}
-                    onChange={e => setCard({ ...card, expiry: e.target.value.replace(/[^\d/]/g, "").replace(/(\d{2})(\d{0,2})/, (m, p1, p2) => p2 ? `${p1}/${p2}` : p1) })}
+                    onChange={e => {
+                      let value = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      if (value.length > 2) value = value.slice(0, 2) + "/" + value.slice(2);
+                      setCard({ ...card, expiry: value });
+                    }}
                     className="text-lg"
                   />
                   <Input
