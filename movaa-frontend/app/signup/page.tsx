@@ -180,7 +180,7 @@ const SignUpForm = () => {
     if (stage === 'otp') {
       otpRefs[0].current?.focus();
     }
-  }, [stage]);
+  }, [stage, otpRefs]);
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-10">

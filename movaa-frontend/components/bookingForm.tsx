@@ -49,6 +49,7 @@ type LocationData = {
   street: string;
   lat: number;
   lon: number;
+  display_name: string;
 };
 
 type Park = {
@@ -368,7 +369,7 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
         const suggestions = await geocodeLocation(query);
         setFromSuggestions(suggestions.slice(0, 5));
       } catch (error) {
-        if (error.name !== 'AbortError') {
+        if (error instanceof Error && error.name !== 'AbortError') {
           console.error('Search error:', error);
         }
       } finally {
