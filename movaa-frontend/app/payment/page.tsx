@@ -197,7 +197,7 @@ const PaymentPage = () => {
                 disabled={!transferChecked}
                 onClick={handleTransfer}
               >
-                I've transferred the money
+                I&apos;ve transferred the money
               </Button>
             </>
           )}

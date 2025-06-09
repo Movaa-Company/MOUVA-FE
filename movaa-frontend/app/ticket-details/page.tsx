@@ -153,7 +153,7 @@ const TicketDetailsPage = () => {
       {/* Toast for success message */}
       {showToast && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-700 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in">
-          Here's your ticket. Please keep it safe
+          Here&apos;s your ticket. Please keep it safe
         </div>
       )}
       <div className="w-full max-w-3xl">

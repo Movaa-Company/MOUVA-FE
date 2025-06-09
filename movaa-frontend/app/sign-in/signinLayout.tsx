@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SignInLayoutProps {
@@ -25,7 +26,7 @@ const DesktopLayout = ({ SignInForm }: SignInLayoutProps) => {
       {/* Left side - Image */}
       <div className="w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-gray-800 opacity-5"></div>
-        <img
+        <Image
           src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80"
           alt="Bus Interior"
           className="object-cover h-full w-full opacity-95 transition-transform duration-10000 ease-in-out hover:scale-110"

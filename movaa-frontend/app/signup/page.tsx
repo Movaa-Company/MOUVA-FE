@@ -243,7 +243,7 @@ const SignUpForm = () => {
             <div className="space-y-4">
               <div className="text-center">
                 <h2 className="text-xl font-medium">Enter Verification Code</h2>
-                <p className="text-gray-500 mt-1">We've sent a code to {contactValue}</p>
+                <p className="text-gray-500 mt-1">We&apos;ve sent a code to {contactValue}</p>
               </div>
 
               <div className="flex justify-center space-x-3 my-6">

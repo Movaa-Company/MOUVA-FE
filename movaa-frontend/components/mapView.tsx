@@ -35,7 +35,7 @@ const MapView: React.FC<MapViewProps> = ({
           attribution='&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-      <Marker position={[userCoords.lat, userCoords.lng]}>
+        <Marker position={[userCoords.lat, userCoords.lng]}>
           <Popup>Your Location</Popup>
         </Marker>
         <Marker position={[terminalCoords.lat, terminalCoords.lng]}>
