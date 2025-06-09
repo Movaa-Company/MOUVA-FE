@@ -1,6 +1,6 @@
-"use client"
+'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 interface LocationContextType {
   permission: PermissionState | null;
@@ -12,8 +12,8 @@ interface LocationContextType {
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = "movaa_location_permission";
-const LOCAL_STORAGE_CITY = "movaa_current_city";
+const LOCAL_STORAGE_KEY = 'movaa_location_permission';
+const LOCAL_STORAGE_CITY = 'movaa_current_city';
 
 export const LocationProvider = ({ children }: { children: ReactNode }) => {
   const [permission, setPermission] = useState<PermissionState | null>(null);
@@ -39,14 +39,14 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     setError(null);
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser.");
+      setError('Geolocation is not supported by your browser.');
       setLoading(false);
-      setPermission("denied");
+      setPermission('denied');
       return;
     }
     navigator.geolocation.getCurrentPosition(
       async (position) => {
-        setPermission("granted");
+        setPermission('granted');
         // Reverse geocode to get city name
         try {
           const { latitude, longitude } = position.coords;
@@ -55,16 +55,22 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10&addressdetails=1`
           );
           const data = await res.json();
-          const city = data.address.city || data.address.town || data.address.village || data.address.state_district || data.address.state || null;
+          const city =
+            data.address.city ||
+            data.address.town ||
+            data.address.village ||
+            data.address.state_district ||
+            data.address.state ||
+            null;
           setCurrentCity(city);
         } catch (e) {
-          setError("Could not determine city from location.");
+          setError('Could not determine city from location.');
         }
         setLoading(false);
       },
       (err) => {
-        setPermission("denied");
-        setError("Location permission denied or unavailable.");
+        setPermission('denied');
+        setError('Location permission denied or unavailable.');
         setLoading(false);
       }
     );
@@ -79,6 +85,6 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
 
 export const useLocation = () => {
   const ctx = useContext(LocationContext);
-  if (!ctx) throw new Error("useLocation must be used within a LocationProvider");
+  if (!ctx) throw new Error('useLocation must be used within a LocationProvider');
   return ctx;
-}; 
+};

@@ -1,5 +1,5 @@
-import React from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+import React from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SignInLayoutProps {
   SignInForm: React.ComponentType;

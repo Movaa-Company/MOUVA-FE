@@ -1,22 +1,22 @@
-"use client";
-import React, { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, ArrowLeft, Check } from "lucide-react";
-import SignUpLayout from "./signupLayout";
-import Link from "next/link";
-import { saveUser } from "@/lib/localStorageUtils";
-import { useRouter } from "next/navigation";
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { ArrowRight, ArrowLeft, Check } from 'lucide-react';
+import SignUpLayout from './signupLayout';
+import Link from 'next/link';
+import { saveUser } from '@/lib/localStorageUtils';
+import { useRouter } from 'next/navigation';
 
-type FormStage = "contact" | "otp" | "password";
+type FormStage = 'contact' | 'otp' | 'password';
 
 const SignUpForm = () => {
-  const [stage, setStage] = useState<FormStage>("contact");
-  const [contactValue, setContactValue] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [stage, setStage] = useState<FormStage>('contact');
+  const [contactValue, setContactValue] = useState('');
+  const [otp, setOtp] = useState(['', '', '', '']);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [direction, setDirection] = useState<"forward" | "backward">("forward");
+  const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const router = useRouter();
@@ -32,19 +32,19 @@ const SignUpForm = () => {
   // Animation classes based on direction
   const getAnimationClasses = (currentStage: FormStage) => {
     if (currentStage === stage) {
-      return direction === "forward"
-        ? "screen-enter screen-enter-right"
-        : "screen-enter screen-enter-left";
+      return direction === 'forward'
+        ? 'screen-enter screen-enter-right'
+        : 'screen-enter screen-enter-left';
     }
-    return direction === "forward"
-      ? "screen-exit screen-exit-left"
-      : "screen-exit screen-exit-right";
+    return direction === 'forward'
+      ? 'screen-exit screen-exit-left'
+      : 'screen-exit screen-exit-right';
   };
 
   // Handle contact input validation
   const validateContact = () => {
     if (!contactValue) {
-      setErrors({ contact: "Please enter your email or phone number" });
+      setErrors({ contact: 'Please enter your email or phone number' });
       return false;
     }
 
@@ -52,7 +52,7 @@ const SignUpForm = () => {
     const isPhone = /^\+?[0-9]{10,15}$/.test(contactValue);
 
     if (!isEmail && !isPhone) {
-      setErrors({ contact: "Please enter a valid email or phone number" });
+      setErrors({ contact: 'Please enter a valid email or phone number' });
       return false;
     }
 
@@ -62,8 +62,8 @@ const SignUpForm = () => {
 
   // Handle OTP validation
   const validateOtp = () => {
-    if (otp.some((digit) => digit === "")) {
-      setErrors({ otp: "Please enter the complete verification code" });
+    if (otp.some((digit) => digit === '')) {
+      setErrors({ otp: 'Please enter the complete verification code' });
       return false;
     }
     setErrors({});
@@ -73,12 +73,12 @@ const SignUpForm = () => {
   // Handle password validation
   const validatePassword = () => {
     if (password.length < 8) {
-      setErrors({ password: "Password must be at least 8 characters" });
+      setErrors({ password: 'Password must be at least 8 characters' });
       return false;
     }
 
     if (password !== confirmPassword) {
-      setErrors({ confirmPassword: "Passwords do not match" });
+      setErrors({ confirmPassword: 'Passwords do not match' });
       return false;
     }
 
@@ -94,30 +94,30 @@ const SignUpForm = () => {
     let isValid = false;
 
     switch (stage) {
-      case "contact":
+      case 'contact':
         isValid = validateContact();
         if (isValid) {
           // Simulate API call to send OTP
           setTimeout(() => {
-            setDirection("forward");
-            setStage("otp");
+            setDirection('forward');
+            setStage('otp');
             toast.success(`Verification code sent to ${contactValue}`);
           }, 1000);
         }
         break;
 
-      case "otp":
+      case 'otp':
         isValid = validateOtp();
         if (isValid) {
           // Simulate OTP verification
           setTimeout(() => {
-            setDirection("forward");
-            setStage("password");
+            setDirection('forward');
+            setStage('password');
           }, 1000);
         }
         break;
 
-      case "password":
+      case 'password':
         isValid = validatePassword();
         if (isValid) {
           // Save user data to localStorage
@@ -126,9 +126,9 @@ const SignUpForm = () => {
             password: password,
           };
           saveUser(newUser);
-          toast.success("Registration completed successfully!");
+          toast.success('Registration completed successfully!');
           // Navigate to personalize profile page
-          router.push("/personalize-profile");
+          router.push('/personalize-profile');
         }
         break;
     }
@@ -148,57 +148,53 @@ const SignUpForm = () => {
       setOtp(newOtp);
 
       // Auto-focus next input
-      if (value !== "" && index < 3) {
+      if (value !== '' && index < 3) {
         otpRefs[index + 1].current?.focus();
       }
-    } else if (value === "") {
+    } else if (value === '') {
       const newOtp = [...otp];
-      newOtp[index] = "";
+      newOtp[index] = '';
       setOtp(newOtp);
     }
   };
 
   // Handle OTP keydown for backspace
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && index > 0 && otp[index] === "") {
+    if (e.key === 'Backspace' && index > 0 && otp[index] === '') {
       otpRefs[index - 1].current?.focus();
     }
   };
 
   // Handle going back to previous stage
   const handleBack = () => {
-    setDirection("backward");
-    if (stage === "otp") {
-      setStage("contact");
-    } else if (stage === "password") {
-      setStage("otp");
+    setDirection('backward');
+    if (stage === 'otp') {
+      setStage('contact');
+    } else if (stage === 'password') {
+      setStage('otp');
     }
   };
 
   // Focus first OTP input when stage changes to OTP
   useEffect(() => {
-    if (stage === "otp") {
+    if (stage === 'otp') {
       otpRefs[0].current?.focus();
     }
   }, [stage]);
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-10">
-        <h1 className="text-5xl font-semibold font-baloo text-black mb-3">
-          Sign up
-        </h1>
-        <p className="text-gray-600 text-xs">
-          signup in 3 seconds & book your bus
-        </p>
+        <h1 className="text-5xl font-semibold font-baloo text-black mb-3">Sign up</h1>
+        <p className="text-gray-600 text-xs">signup in 3 seconds & book your bus</p>
       </div>
 
       <div className="relative min-h-[300px]">
         {/* Contact Stage */}
         <div
           className={`absolute w-full transition-all duration-500 ease-in-out ${getAnimationClasses(
-            "contact"
+            'contact'
           )}`}
-          style={{ display: stage === "contact" ? "block" : "none" }}
+          style={{ display: stage === 'contact' ? 'block' : 'none' }}
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
@@ -212,14 +208,12 @@ const SignUpForm = () => {
                 disabled={isSubmitting}
               />
               <p className="text-[11px] italic text-right">
-                already have an account?{" "}
+                already have an account?{' '}
                 <Link href="/sign-in" className="text-[#006400]">
                   sign in
                 </Link>
               </p>
-              {errors.contact && (
-                <p className="text-red-500 text-sm">{errors.contact}</p>
-              )}
+              {errors.contact && <p className="text-red-500 text-sm">{errors.contact}</p>}
             </div>
 
             <button
@@ -241,17 +235,15 @@ const SignUpForm = () => {
         {/* OTP Stage */}
         <div
           className={`absolute w-full transition-all duration-500 ease-in-out ${getAnimationClasses(
-            "otp"
+            'otp'
           )}`}
-          style={{ display: stage === "otp" ? "block" : "none" }}
+          style={{ display: stage === 'otp' ? 'block' : 'none' }}
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
               <div className="text-center">
                 <h2 className="text-xl font-medium">Enter Verification Code</h2>
-                <p className="text-gray-500 mt-1">
-                  We've sent a code to {contactValue}
-                </p>
+                <p className="text-gray-500 mt-1">We've sent a code to {contactValue}</p>
               </div>
 
               <div className="flex justify-center space-x-3 my-6">
@@ -270,15 +262,10 @@ const SignUpForm = () => {
                 ))}
               </div>
 
-              {errors.otp && (
-                <p className="text-red-500 text-sm text-center">{errors.otp}</p>
-              )}
+              {errors.otp && <p className="text-red-500 text-sm text-center">{errors.otp}</p>}
 
               <div className="text-center">
-                <button
-                  type="button"
-                  className="text-movaa-primary hover:underline"
-                >
+                <button type="button" className="text-movaa-primary hover:underline">
                   Resend Code
                 </button>
               </div>
@@ -314,19 +301,17 @@ const SignUpForm = () => {
         {/* Password Stage */}
         <div
           className={`absolute w-full transition-all duration-500 ease-in-out ${getAnimationClasses(
-            "password"
+            'password'
           )}`}
-          style={{ display: stage === "password" ? "block" : "none" }}
+          style={{ display: stage === 'password' ? 'block' : 'none' }}
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="text-center mb-4">
               <h2 className="text-xl font-medium">Create Password</h2>
-
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
-                
                 <input
                   id="password"
                   type="password"
@@ -337,13 +322,10 @@ const SignUpForm = () => {
                   aria-label="create password"
                   disabled={isSubmitting}
                 />
-                {errors.password && (
-                  <p className="text-red-500 text-sm">{errors.password}</p>
-                )}
+                {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
               </div>
 
               <div className="space-y-2">
-                
                 <input
                   id="confirmPassword"
                   type="password"
@@ -355,9 +337,7 @@ const SignUpForm = () => {
                   disabled={isSubmitting}
                 />
                 {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm">
-                    {errors.confirmPassword}
-                  </p>
+                  <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
                 )}
               </div>
             </div>
@@ -380,7 +360,7 @@ const SignUpForm = () => {
                 {isSubmitting ? (
                   <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  "Complete Registration"
+                  'Complete Registration'
                 )}
               </button>
             </div>

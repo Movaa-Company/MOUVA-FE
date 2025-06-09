@@ -1,6 +1,6 @@
-"use client";
-import React from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
+'use client';
+import React from 'react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const SignUpLayout = ({ SignUpForm }: { SignUpForm: React.ComponentType }) => {
   const isMobile = useIsMobile();

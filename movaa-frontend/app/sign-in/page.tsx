@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { ArrowRight } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
-import SignInLayout from "./signinLayout";
-import Link from "next/link";
-import { getUser, setLoggedInUser } from "@/lib/localStorageUtils";
+import React, { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import SignInLayout from './signinLayout';
+import Link from 'next/link';
+import { getUser, setLoggedInUser } from '@/lib/localStorageUtils';
 
 const SignInForm = () => {
   const router = useRouter();
-  const [contactValue, setContactValue] = useState("");
-  const [password, setPassword] = useState("");
+  const [contactValue, setContactValue] = useState('');
+  const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
@@ -19,7 +19,7 @@ const SignInForm = () => {
   // Handle contact input validation
   const validateContact = () => {
     if (!contactValue) {
-      setErrors({ contact: "Please enter your email or phone number" });
+      setErrors({ contact: 'Please enter your email or phone number' });
       return false;
     }
 
@@ -27,22 +27,22 @@ const SignInForm = () => {
     const isPhone = /^\+?[0-9]{10,15}$/.test(contactValue);
 
     if (!isEmail && !isPhone) {
-      setErrors({ contact: "Please enter a valid email or phone number" });
+      setErrors({ contact: 'Please enter a valid email or phone number' });
       return false;
     }
 
-    setErrors((prev) => ({ ...prev, contact: "" }));
+    setErrors((prev) => ({ ...prev, contact: '' }));
     return true;
   };
 
   // Handle password validation
   const validatePassword = () => {
     if (!password) {
-      setErrors({ password: "Please enter your password" });
+      setErrors({ password: 'Please enter your password' });
       return false;
     }
 
-    setErrors((prev) => ({ ...prev, password: "" }));
+    setErrors((prev) => ({ ...prev, password: '' }));
     return true;
   };
 
@@ -69,16 +69,15 @@ const SignInForm = () => {
         // Set logged-in user in localStorage
         setLoggedInUser(user.phone); // Use phone as the identifier
 
-        toast.success("Welcome back to Movaa!");
-        router.push("/booking-details"); // Navigate to booking details page
+        toast.success('Welcome back to Movaa!');
+        router.push('/booking-details'); // Navigate to booking details page
       } else {
-        toast.error("Invalid email/phone or password.");
-        setErrors({ general: "Invalid email/phone or password." });
+        toast.error('Invalid email/phone or password.');
+        setErrors({ general: 'Invalid email/phone or password.' });
       }
-
     } catch (error) {
-      console.error("Sign in error:", error);
-      toast.error("An error occurred during sign in.");
+      console.error('Sign in error:', error);
+      toast.error('An error occurred during sign in.');
     } finally {
       setIsSubmitting(false);
     }
@@ -87,12 +86,8 @@ const SignInForm = () => {
   return (
     <div className="w-full max-w-md mx-auto">
       <div className="text-center mb-10">
-        <h1 className="text-5xl font-semibold font-baloo text-black mb-3">
-          Sign in
-        </h1>
-        <p className="text-gray-600 text-xs">
-          sign in & book your bus in seconds
-        </p>
+        <h1 className="text-5xl font-semibold font-baloo text-black mb-3">Sign in</h1>
+        <p className="text-gray-600 text-xs">sign in & book your bus in seconds</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -108,9 +103,7 @@ const SignInForm = () => {
             aria-label="Email or Phone Number"
             disabled={isSubmitting}
           />
-          {errors.contact && (
-            <p className="text-red-500 text-sm">{errors.contact}</p>
-          )}
+          {errors.contact && <p className="text-red-500 text-sm">{errors.contact}</p>}
         </div>
 
         <div className="space-y-2">
@@ -125,16 +118,11 @@ const SignInForm = () => {
             aria-label="password"
             disabled={isSubmitting}
           />
-          {errors.password && (
-            <p className="text-red-500 text-sm">{errors.password}</p>
-          )}
+          {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
         </div>
 
         <div className="text-right">
-          <button
-            type="button"
-            className="text-movaa-primary hover:underline text-sm"
-          >
+          <button type="button" className="text-movaa-primary hover:underline text-sm">
             Forgot password?
           </button>
         </div>
@@ -154,7 +142,7 @@ const SignInForm = () => {
         </button>
         <div className="text-center mt-4">
           <p className="text-gray-600">
-            Don't have an account?{" "}
+            Don't have an account?{' '}
             <Link href="/signup" className="text-movaa-primary hover:underline">
               Sign up
             </Link>

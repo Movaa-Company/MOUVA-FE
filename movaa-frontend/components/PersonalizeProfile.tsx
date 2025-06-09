@@ -1,24 +1,47 @@
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { getUser, saveUser } from "@/lib/localStorageUtils";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { getUser, saveUser } from '@/lib/localStorageUtils';
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
 
 const profileSchema = z.object({
-  firstName: z.string().min(2, { message: "First name is required and must be at least 2 characters." }),
-  lastName: z.string().min(2, { message: "Last name is required and must be at least 2 characters." }),
-  gender: z.enum(["Male", "Female"], { required_error: "Gender is required." }),
-  nextOfKinName: z.string().min(2, { message: "Next of kin name is required and must be at least 2 characters." }),
-  nextOfKinPhone: z.string().regex(/^\+?[0-9]{10,15}$/, { message: "Invalid phone number format." }),
-  nextOfKinGender: z.enum(["Male", "Female"], { required_error: "Next of kin gender is required." }),
+  firstName: z
+    .string()
+    .min(2, { message: 'First name is required and must be at least 2 characters.' }),
+  lastName: z
+    .string()
+    .min(2, { message: 'Last name is required and must be at least 2 characters.' }),
+  gender: z.enum(['Male', 'Female'], { required_error: 'Gender is required.' }),
+  nextOfKinName: z
+    .string()
+    .min(2, { message: 'Next of kin name is required and must be at least 2 characters.' }),
+  nextOfKinPhone: z
+    .string()
+    .regex(/^\+?[0-9]{10,15}$/, { message: 'Invalid phone number format.' }),
+  nextOfKinGender: z.enum(['Male', 'Female'], {
+    required_error: 'Next of kin gender is required.',
+  }),
 });
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
@@ -30,11 +53,11 @@ const PersonalizeProfile = () => {
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      firstName: '',
+      lastName: '',
       gender: undefined,
-      nextOfKinName: "",
-      nextOfKinPhone: "",
+      nextOfKinName: '',
+      nextOfKinPhone: '',
       nextOfKinGender: undefined,
     },
   });
@@ -52,12 +75,12 @@ const PersonalizeProfile = () => {
     if (currentUser) {
       const updatedUser = { ...currentUser, profile: data };
       saveUser(updatedUser);
-      toast.success("Profile saved successfully!");
-      router.push("/booking-details");
+      toast.success('Profile saved successfully!');
+      router.push('/booking-details');
     } else {
       // This case should ideally not happen if the flow is followed, but handle defensively
-      toast.error("User data not found. Please sign up or sign in again.");
-      router.push("/signup"); // Redirect to signup or login
+      toast.error('User data not found. Please sign up or sign in again.');
+      router.push('/signup'); // Redirect to signup or login
     }
   };
 
@@ -107,9 +130,9 @@ const PersonalizeProfile = () => {
                   <FormItem>
                     <FormLabel>Gender</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <SelectTrigger className="rounded-lg">
-                          <SelectValue placeholder="Select Gender" />
-                        </SelectTrigger>
+                      <SelectTrigger className="rounded-lg">
+                        <SelectValue placeholder="Select Gender" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Male">Male</SelectItem>
                         <SelectItem value="Female">Female</SelectItem>
@@ -132,7 +155,7 @@ const PersonalizeProfile = () => {
                   <FormItem>
                     <FormLabel>Full Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="First Name" {...field} className="rounded-lg" /> 
+                      <Input placeholder="First Name" {...field} className="rounded-lg" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -146,9 +169,9 @@ const PersonalizeProfile = () => {
                   <FormItem>
                     <FormLabel>Gender</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <SelectTrigger className="rounded-lg">
-                          <SelectValue placeholder="Select Gender" />
-                        </SelectTrigger>
+                      <SelectTrigger className="rounded-lg">
+                        <SelectValue placeholder="Select Gender" />
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Male">Male</SelectItem>
                         <SelectItem value="Female">Female</SelectItem>
@@ -174,7 +197,10 @@ const PersonalizeProfile = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full mt-6 bg-movaa-primary hover:bg-movaa-dark text-white font-baloo text-lg rounded-lg">
+            <Button
+              type="submit"
+              className="w-full mt-6 bg-movaa-primary hover:bg-movaa-dark text-white font-baloo text-lg rounded-lg"
+            >
               Sign Up
             </Button>
           </form>
@@ -184,4 +210,4 @@ const PersonalizeProfile = () => {
   );
 };
 
-export default PersonalizeProfile; 
+export default PersonalizeProfile;

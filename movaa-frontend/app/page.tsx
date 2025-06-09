@@ -1,34 +1,32 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import BookingForm from "@/components/bookingForm";
-import MapView from "@/components/mapView";
-import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import BookingForm from '@/components/bookingForm';
+import dynamic from 'next/dynamic';
+import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Menu } from 'lucide-react';
+
+const MapView = dynamic(() => import('@/components/mapView'), { ssr: false });
 
 const BookingPage = () => {
   const isMobile = useIsMobile();
-  const [destination, setDestination] = useState("");
+  const [destination, setDestination] = useState('');
   const [hasLiveTicket, setHasLiveTicket] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       try {
-        const bookingRaw = localStorage.getItem("bookingData");
+        const bookingRaw = localStorage.getItem('bookingData');
         if (bookingRaw) {
           const booking = JSON.parse(bookingRaw);
           const paymentStatus = booking.paymentStatus;
           const date = booking.date ? new Date(booking.date) : null;
           const now = new Date();
-          if (
-            paymentStatus === "Paid" &&
-            date &&
-            date > now
-          ) {
+          if (paymentStatus === 'Paid' && date && date > now) {
             setHasLiveTicket(true);
             return;
           }
@@ -42,9 +40,7 @@ const BookingPage = () => {
     <div className="min-h-screen flex flex-col overflow-hidden">
       {/* Navigation Bar */}
       <nav className="flex items-center justify-between p-4 border-b border-gray-200">
-        <h1 className="text-2xl font-baloo font-semibold text-movaa-primary">
-          Movaa
-        </h1>
+        <h1 className="text-2xl font-baloo font-semibold text-movaa-primary">Movaa</h1>
         {isMobile ? <MobileNav /> : <DesktopNav />}
       </nav>
 
@@ -120,22 +116,13 @@ const BookingPage = () => {
 const DesktopNav = () => (
   <div className="flex items-center space-x-8">
     <div className="flex space-x-6">
-      <Link
-        href="/"
-        className="text-gray-700 hover:text-movaa-primary transition-colors"
-      >
+      <Link href="/" className="text-gray-700 hover:text-movaa-primary transition-colors">
         Home
       </Link>
-      <Link
-        href="#"
-        className="text-gray-700 hover:text-movaa-primary transition-colors"
-      >
+      <Link href="#" className="text-gray-700 hover:text-movaa-primary transition-colors">
         About
       </Link>
-      <Link
-        href="#"
-        className="text-gray-700 hover:text-movaa-primary transition-colors"
-      >
+      <Link href="#" className="text-gray-700 hover:text-movaa-primary transition-colors">
         Contact
       </Link>
     </div>

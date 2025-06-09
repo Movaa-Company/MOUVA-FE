@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 
 const BusTicketPage = () => {
   return (
@@ -11,4 +11,4 @@ const BusTicketPage = () => {
   );
 };
 
-export default BusTicketPage; 
+export default BusTicketPage;

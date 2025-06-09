@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getBookingData, getUser, saveUser, saveBookingData } from "@/lib/localStorageUtils";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import dynamic from "next/dynamic";
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { getBookingData, getUser, saveUser, saveBookingData } from '@/lib/localStorageUtils';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import dynamic from 'next/dynamic';
 
 // Dynamically import Leaflet map to avoid SSR issues
-const MapView = dynamic(() => import("@/components/mapView"), { ssr: false });
+const MapView = dynamic(() => import('@/components/mapView'), { ssr: false });
 
 // Pricing function (city pair based)
 const getTicketPrice = (from: string, to: string) => {
   const key = `${from.trim().toLowerCase()}-${to.trim().toLowerCase()}`;
   const priceTable: { [key: string]: number } = {
-    "ajah-aba": 40000,
-    "ikeja-aba": 42000,
-    "yaba-aba": 41000,
+    'ajah-aba': 40000,
+    'ikeja-aba': 42000,
+    'yaba-aba': 41000,
     // Add more city pairs as needed
   };
   return priceTable[key] || 40000; // default price
@@ -30,8 +30,7 @@ function getDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   const dLon = toRad(lon2 - lon1);
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -41,13 +40,13 @@ const BookingDetailsPage = () => {
   const [booking, setBooking] = useState<any>(null);
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const bookingData = getBookingData();
     const userData = getUser();
     if (!bookingData || !userData) {
-      router.replace("/bookingForm");
+      router.replace('/bookingForm');
       return;
     }
     setBooking(bookingData);
@@ -59,7 +58,9 @@ const BookingDetailsPage = () => {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
   if (error) {
-    return <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center text-red-500">{error}</div>
+    );
   }
   if (!booking || !user) {
     return null;
@@ -78,47 +79,95 @@ const BookingDetailsPage = () => {
         <div className="grid md:grid-cols-2 gap-6">
           {/* Trip Details */}
           <div>
-            <h2 className="font-semibold text-lg bg-gray-100 rounded-t px-3 py-2 mb-2">Trip Details</h2>
+            <h2 className="font-semibold text-lg bg-gray-100 rounded-t px-3 py-2 mb-2">
+              Trip Details
+            </h2>
             <div className="space-y-2 text-sm md:text-base">
-              <div className="flex justify-between"><span>Traveling To:</span> <span className="font-bold">{booking.destination}</span></div>
-              <div className="flex justify-between"><span>From:</span> <span className="font-bold">{booking.from}</span></div>
-              <div className="flex justify-between"><span>Street:</span> <span className="font-bold">{fromDetails.street || '-'}</span></div>
-              <div className="flex justify-between"><span>Date/Time:</span> <span className="font-bold">{booking.date ? new Date(booking.date).toLocaleString() : "-"} {booking.time}</span></div>
-              <div className="flex justify-between"><span>Passenger:</span> <span>👤 Adult: {booking.tickets} 👶 Children: {booking.children || 0}</span></div>
+              <div className="flex justify-between">
+                <span>Traveling To:</span> <span className="font-bold">{booking.destination}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>From:</span> <span className="font-bold">{booking.from}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Street:</span> <span className="font-bold">{fromDetails.street || '-'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Date/Time:</span>{' '}
+                <span className="font-bold">
+                  {booking.date ? new Date(booking.date).toLocaleDateString() : '-'} -{' '}
+                  {booking.time}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Passenger:</span>{' '}
+                <span>
+                  👤 Adult: {booking.tickets} 👶 Children: {booking.children || 0}
+                </span>
+              </div>
             </div>
           </div>
           {/* Passenger Details */}
           <div>
-            <h2 className="font-semibold text-lg bg-gray-100 rounded-t px-3 py-2 mb-2">Passenger Details</h2>
+            <h2 className="font-semibold text-lg bg-gray-100 rounded-t px-3 py-2 mb-2">
+              Passenger Details
+            </h2>
             <div className="space-y-2 text-sm md:text-base">
-              <div className="flex justify-between"><span>Full Name:</span> <span className="font-bold">{user.profile?.firstName} {user.profile?.lastName}</span></div>
-              <div className="flex justify-between"><span>Phone Number:</span> <span className="font-bold">{user.phone}</span></div>
-              <div className="flex justify-between"><span>Email:</span> <span className="font-bold">{user.email}</span></div>
+              <div className="flex justify-between">
+                <span>Full Name:</span>{' '}
+                <span className="font-bold">
+                  {user.profile?.firstName} {user.profile?.lastName}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>Phone Number:</span> <span className="font-bold">{user.phone}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Email:</span> <span className="font-bold">{user.email}</span>
+              </div>
             </div>
           </div>
         </div>
         {/* Next of Kin & Payment */}
         <div className="grid md:grid-cols-2 gap-6 mt-6">
           <div>
-            <h2 className="font-semibold text-lg bg-gray-100 rounded-t px-3 py-2 mb-2">Next of Kin</h2>
+            <h2 className="font-semibold text-lg bg-gray-100 rounded-t px-3 py-2 mb-2">
+              Next of Kin
+            </h2>
             <div className="space-y-2 text-sm md:text-base">
-              <div className="flex justify-between"><span>Full Name:</span> <span className="font-bold">{user.profile?.nextOfKinName}</span></div>
-              <div className="flex justify-between"><span>Phone Number:</span> <span className="font-bold">{user.profile?.nextOfKinPhone}</span></div>
+              <div className="flex justify-between">
+                <span>Full Name:</span>{' '}
+                <span className="font-bold">{user.profile?.nextOfKinName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Phone Number:</span>{' '}
+                <span className="font-bold">{user.profile?.nextOfKinPhone}</span>
+              </div>
             </div>
           </div>
           <div>
-            <h2 className="font-semibold text-lg bg-gray-100 rounded-t px-3 py-2 mb-2">Payment Summary</h2>
+            <h2 className="font-semibold text-lg bg-gray-100 rounded-t px-3 py-2 mb-2">
+              Payment Summary
+            </h2>
             <div className="space-y-2 text-sm md:text-base">
-              <div className="flex justify-between"><span>Ticket Price:</span> <span>₦{price.toLocaleString()}</span></div>
-              <div className="flex justify-between"><span>Adult X{booking.tickets}:</span> <span>₦{total.toLocaleString()}</span></div>
-              <div className="flex justify-between font-bold text-lg"><span>Total Payment:</span> <span>₦{total.toLocaleString()}</span></div>
+              <div className="flex justify-between">
+                <span>Ticket Price:</span> <span>₦{price.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Adult X{booking.tickets}:</span> <span>₦{total.toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between font-bold text-lg">
+                <span>Total Payment:</span> <span>₦{total.toLocaleString()}</span>
+              </div>
             </div>
           </div>
         </div>
         {/* Take-Off Park & Map */}
         <div className="grid md:grid-cols-2 gap-6 mt-6">
           <div>
-            <h2 className="font-semibold text-lg bg-gray-100 rounded-t px-3 py-2 mb-2">Take-Off Park</h2>
+            <h2 className="font-semibold text-lg bg-gray-100 rounded-t px-3 py-2 mb-2">
+              Take-Off Park
+            </h2>
             <div className="space-y-2 text-sm md:text-base">
               <div className="font-bold">{park.name}</div>
               <div>{park.address}</div>
@@ -137,12 +186,23 @@ const BookingDetailsPage = () => {
         </div>
         {/* Action Buttons */}
         <div className="flex flex-col md:flex-row gap-4 mt-8 justify-center">
-          <Button variant="outline" className="w-full md:w-auto" onClick={() => router.push("/bookingForm")}>Edit Details</Button>
-          <Button className="w-full md:w-auto bg-movaa-primary hover:bg-movaa-dark text-white" onClick={() => router.push("/payment")}>Proceed to Payment</Button>
+          <Button
+            variant="outline"
+            className="w-full md:w-auto"
+            onClick={() => router.push('/bookingForm')}
+          >
+            Edit Details
+          </Button>
+          <Button
+            className="w-full md:w-auto bg-movaa-primary hover:bg-movaa-dark text-white"
+            onClick={() => router.push('/payment')}
+          >
+            Proceed to Payment
+          </Button>
         </div>
       </div>
     </div>
   );
 };
 
-export default BookingDetailsPage; 
+export default BookingDetailsPage;
