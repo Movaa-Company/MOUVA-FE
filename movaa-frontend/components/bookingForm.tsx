@@ -258,6 +258,7 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
   const [openAuthDialog, setOpenAuthDialog] = useState(false);
   const [childrenError, setChildrenError] = useState<string | null>(null);
   const [formError, setFormError] = useState('');
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
 
   const fromInputRef = useRef<HTMLInputElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -511,7 +512,7 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
                     <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                     <Input
                       placeholder="Travelling to"
-                      className="pl-10 h-12 rounded-xl font-medium text-lg border-2 focus:border-movaa-light focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none text-black"
+                      className="pl-10 h-12 rounded-xl font-medium text-lg md:text-lg border-2 focus:border-movaa-light focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none transition-colors text-gray-500"
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
@@ -555,7 +556,7 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
                   <input
                     id="from-input"
                     ref={fromInputRef}
-                    className="w-full h-12 pl-10 pr-12 rounded-xl border-2 focus:border-movaa-light font-medium text-lg focus:outline-none transition-colors"
+                    className="w-full h-12 pl-10 pr-12 rounded-xl border-2 focus:border-movaa-light font-medium text-lg focus:outline-none transition-colors text-gray-500"
                     placeholder={autoDetecting ? 'Detecting location...' : 'From (Street, City)'}
                     value={fromInput}
                     onChange={(e) => handleFromInputChange(e.target.value)}
@@ -630,7 +631,7 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="sr-only">Travel Date</FormLabel>
-                  <Popover>
+                  <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                     <PopoverTrigger asChild>
                       <FormControl>
                         <Button
@@ -648,11 +649,7 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
                         selected={field.value}
                         onSelect={(date) => {
                           field.onChange(date);
-                          // Close the popover after selection
-                          const popoverTrigger = document.querySelector('[data-state="open"]');
-                          if (popoverTrigger) {
-                            (popoverTrigger as HTMLElement).click();
-                          }
+                          setDatePopoverOpen(false);
                         }}
                         disabled={(date) => date < new Date() || date > addDays(new Date(), 30)}
                         initialFocus
