@@ -349,7 +349,19 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
       setSelectedPark(nearest);
       form.setValue('takeOffPark', nearest.name);
     }
-  }, [fromSelected, form]);
+  }, [fromSelected, form, PARKS, setNearestParks, setSelectedPark]);
+
+  // Update nearest park when from location changes
+  useEffect(() => {
+    if (fromSelected?.city && fromInput.trim()) {
+      // Use the first park from nearestParks array since it's already sorted by distance
+      const nearest = nearestParks[0];
+      if (nearest) {
+        setSelectedPark(nearest);
+        form.setValue('takeOffPark', nearest.name);
+      }
+    }
+  }, [fromSelected, fromInput, form, nearestParks, setSelectedPark]);
 
   // Debounced search functions
   const debouncedFromSearch = useCallback(
@@ -377,7 +389,7 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
         setFromLoading(false);
       }
     }, 500),
-    []
+    [setFromSuggestions, setFromLoading, geocodeLocation]
   );
 
   const debouncedDestinationSearch = useCallback(
@@ -393,7 +405,7 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
 
       setDestinationSuggestions(filtered);
     }, 300),
-    []
+    [setDestinationSuggestions, NIGERIAN_CITIES]
   );
 
   // Handlers

@@ -68,7 +68,7 @@ const PersonalizeProfile = () => {
     if (currentUser && currentUser.profile) {
       form.reset(currentUser.profile); // Pre-fill form with existing profile data
     }
-  }, []);
+  }, [form]);
 
   const onSubmit = (data: ProfileFormValues) => {
     const currentUser = getUser();

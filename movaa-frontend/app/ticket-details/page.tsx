@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -19,7 +19,7 @@ function sanitize(str: string) {
   return String(str || '').replace(/[<>]/g, '');
 }
 
-const TicketDetailsPage = () => {
+const TicketDetailsContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [booking, setBooking] = useState<any>(null);
@@ -258,6 +258,16 @@ const TicketDetailsPage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const TicketDetailsPage = () => {
+  return (
+    <Suspense
+      fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}
+    >
+      <TicketDetailsContent />
+    </Suspense>
   );
 };
 

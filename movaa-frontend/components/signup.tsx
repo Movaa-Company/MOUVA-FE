@@ -18,12 +18,11 @@ const SignUpForm = () => {
   const { toast } = useToast();
 
   // OTP input refs
-  const otpRefs = [
-    React.useRef<HTMLInputElement>(null),
-    React.useRef<HTMLInputElement>(null),
-    React.useRef<HTMLInputElement>(null),
-    React.useRef<HTMLInputElement>(null),
-  ];
+  const otpRef1 = React.useRef<HTMLInputElement>(null);
+  const otpRef2 = React.useRef<HTMLInputElement>(null);
+  const otpRef3 = React.useRef<HTMLInputElement>(null);
+  const otpRef4 = React.useRef<HTMLInputElement>(null);
+  const otpRefs = [otpRef1, otpRef2, otpRef3, otpRef4];
 
   // Animation classes based on direction
   const getAnimationClasses = (currentStage: FormStage) => {
