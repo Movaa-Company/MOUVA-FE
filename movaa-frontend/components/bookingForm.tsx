@@ -329,6 +329,30 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
   }, []);
 
   // Calculate nearest parks when location changes
+  // useEffect(() => {
+  //   if (!fromSelected?.lat || !fromSelected?.lon) {
+  //     setNearestParks([]);
+  //     setSelectedPark(null);
+  //     return;
+  //   }
+
+  //   const parksWithDistance = PARKS.map((park) => ({
+  //     ...park,
+  //     distance: haversineDistance(fromSelected.lat, fromSelected.lon, park.lat, park.lng),
+  //   })).sort((a, b) => a.distance - b.distance);
+
+  //   setNearestParks(parksWithDistance);
+
+  //   // Auto-select nearest park
+  //   if (parksWithDistance.length > 0) {
+  //     const nearest = parksWithDistance[0];
+  //     setSelectedPark(nearest);
+  //     form.setValue('takeOffPark', nearest.name);
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [fromSelected]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!fromSelected?.lat || !fromSelected?.lon) {
       setNearestParks([]);
@@ -336,20 +360,18 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
       return;
     }
 
-    const parksWithDistance = PARKS.map((park) => ({
+    // Filter and sort parks by distance
+    const sorted = PARKS.map((park) => ({
       ...park,
-      distance: haversineDistance(fromSelected.lat, fromSelected.lon, park.lat, park.lng),
+      distance: haversineDistance(fromSelected.lat, fromSelected.lon, park.lat, park.lon),
     })).sort((a, b) => a.distance - b.distance);
 
-    setNearestParks(parksWithDistance);
+    setNearestParks(sorted);
 
-    // Auto-select nearest park
-    if (parksWithDistance.length > 0) {
-      const nearest = parksWithDistance[0];
-      setSelectedPark(nearest);
-      form.setValue('takeOffPark', nearest.name);
-    }
-  }, [fromSelected, form, PARKS, setNearestParks, setSelectedPark]);
+    const nearest = sorted[0];
+    setSelectedPark(nearest);
+    form.setValue('takeOffPark', nearest.name);
+  }, [fromSelected?.lat, fromSelected?.lon]);
 
   // Update nearest park when from location changes
   useEffect(() => {
@@ -569,9 +591,17 @@ const BookingForm = ({ onDestinationChange }: BookingFormProps) => {
                     id="from-input"
                     ref={fromInputRef}
                     className="w-full h-12 pl-10 pr-12 rounded-xl border-2 focus:border-movaa-light font-medium text-lg focus:outline-none transition-colors text-gray-500"
-                    placeholder={autoDetecting ? 'Detecting location...' : 'From (Street, City)'}
+                    placeholder={autoDetecting ? 'Detecting location...' : 'From (street, city)'}
                     value={fromInput}
                     onChange={(e) => handleFromInputChange(e.target.value)}
+                    onBlur={async () => {
+                      if (fromInput && !fromSelected) {
+                        const [best] = await geocodeLocation(fromInput);
+                        if (best) {
+                          handleFromSelect(best);
+                        }
+                      }
+                    }}
                     onFocus={() => {
                       if (fromInput.length >= 2 && !autoDetecting) {
                         setFromPopoverOpen(true);
